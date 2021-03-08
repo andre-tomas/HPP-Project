@@ -1,0 +1,131 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/time.h>
+
+// ===== Auxillary functions ======== //
+
+static double get_wall_seconds() {
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  double seconds = tv.tv_sec + (double)tv.tv_usec/1000000;
+  return seconds;
+}
+
+void printArray(int* arr, int N) {
+  printf("{");
+  for(int i = 0; i < N-1; i++) {
+    printf("%d, ",arr[i]);
+  }
+  printf("%d}\n",arr[N-1]);
+}
+
+// Array where we store the random elements
+void generateArray(int* arr, int N, int max) {
+  srand(get_wall_seconds());
+  for (int i = 0; i < N; i++) {
+    arr[i] = rand() & max; // Genrate a int in [0,max]
+  }
+}
+
+
+
+
+
+
+// ==== mergeSort functions ==== // 
+
+void merge(int* list, int* l1, int* l2, int n1, int n2) {
+  int i = 0; int i1 = 0; int i2 = 0;
+
+  while(i1 < n1 && i2 < n2) {
+    if(l1[i1] < l2[i2]) {
+      list[i] = l1[i1];
+      i1++;
+    } else {
+      list[i] = l2[i2];
+      i2++;
+    }
+    i++;  
+  }
+  
+  while(i1 < n1) {
+    list[i] = l1[i1];
+    i++;
+    i1++;
+  }
+  while(i2 < n2) {
+    list[i] = l2[i2];
+    i++;
+    i2++;
+  }
+}
+
+void mergeSort(int* list,int N) {
+
+  if (N == 1) {
+    return;
+  }
+
+  int n1 = N/2;
+  int n2 = N - n1;
+  int* l1 = (int*)malloc(n1*sizeof(int));
+  int* l2 = (int*)malloc(n2*sizeof(int));
+
+  for (int i = 0; i < n1; i++) {
+    l1[i] = list[i];
+  }  
+  for (int i = 0; i < n2; i++) {
+    l2[i] = list[n1+i];
+  }
+  
+  mergeSort(l1,n1);
+  mergeSort(l2,n2);
+  merge(list, l1,l2,n1,n2);
+
+  free(l1);
+  free(l2);
+}
+
+// === Analysis functions === //
+
+// count the number of times the digit check appears in the array list with size N.
+int count(int* list, int N, int a) {
+  int counter = 0;
+  
+  for (int i = 0; i < N; i++) {
+    if (a == list[i]) {
+      counter++;
+    }
+  }
+
+  return counter;
+}
+
+void correctness(int a, int b, int check) {
+  if (a == b) {
+    //printf("Same number of %d before and after sort: %d\n",check,a);
+  } else {
+    printf("Not same number of %d before and after, before: %d , after %d\n",check,a,b);
+  }
+}
+
+
+// ===== main ====== //
+int main(int argc, char* argv[] ) {
+  int N = atoi(argv[1]);
+  int max = atoi(argv[2]);
+  int c1; int c2; int check = 32;
+
+  int* list = (int*)malloc(N*sizeof(int));
+
+  generateArray(list,N,max);
+
+  c1 = count(list,N,check);
+  mergeSort(list,N);
+  c2 = count(list,N,check);
+  
+  correctness(c1,c2,check);
+
+  
+  free(list);
+}
