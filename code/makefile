@@ -1,8 +1,8 @@
 CC = gcc
 LD = gcc
-CFLAGS = -Wall -g -fopenmp
+CFLAGS = -Wall -g -fopenmp -O3
 INCLUDES = 
-LDFLAGS =  -g -fopenmp
+LDFLAGS =  -g -fopenmp -O3
 RM = rm -f
 OBJS = merge.o
 EXECUTABLE = merge

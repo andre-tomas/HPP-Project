@@ -4,7 +4,7 @@
 #include<omp.h>
 
 
-const int flag = 8;
+int flag;
 
 // ===== Auxillary functions ======== //
 
@@ -42,7 +42,7 @@ void swap(int *xp, int *yp) {
 // ==== mergeSort functions ==== //
 
 // Bubblesort, taken from https://www.geeksforgeeks.org/bubble-sort/
-void bubbleSort(int* arr, int n) { 
+void bubbleSort(int* arr, const int n) { 
    int i, j; 
    for (i = 0; i < n-1; i++)       
        for (j = 0; j < n-i-1; j++)  
@@ -50,9 +50,8 @@ void bubbleSort(int* arr, int n) {
               swap(&arr[j], &arr[j+1]); 
 } 
 
-void merge(int* __restrict list, int* __restrict l1, int* __restrict l2, int n1, int n2) {
+void merge(int* __restrict list, int* __restrict l1, int* __restrict l2, const int n1, const int n2) {
   int i = 0; int i1 = 0; int i2 = 0;
-
   while(i1 < n1 && i2 < n2) {
     if(l1[i1] < l2[i2]) {
       list[i] = l1[i1];
@@ -63,7 +62,6 @@ void merge(int* __restrict list, int* __restrict l1, int* __restrict l2, int n1,
     }
     i++;  
   }
-  
   while(i1 < n1) {
     list[i] = l1[i1];
     i++;
@@ -76,7 +74,7 @@ void merge(int* __restrict list, int* __restrict l1, int* __restrict l2, int n1,
   }
 }
 
-void mergeSort(int* __restrict list,int N, int threads) {
+void mergeSort(int* __restrict list, const int N,const  int threads) {
   if (N == 1) {
     return;
   }
@@ -87,16 +85,15 @@ void mergeSort(int* __restrict list,int N, int threads) {
   } else { 
     int n1 = N>>1;
     int n2 = N - n1;
-    int* l1 = (int*)malloc(N*sizeof(int));
-    int* l2 = &l1[n1];
+    int* l1 = (int*)malloc(N*sizeof(int)); //Allocate memory once, access "l2" with &l1[n1].
     
     for (int i = 0; i < n1; i++) {
       l1[i] = list[i];
-      l2[i] = list[n1+i];
+      l1[n1+i] = list[n1+i];
     }
     
-    if (n1 != n2) { // From splitting l2 will have one element more if uneven list size.
-      l2[n2-1] = list[N-1];
+    if (N % 2 != 0) { // If N is odd the second list will be one element longer.
+      l1[N-1] = list[N-1];
     }
     
     if (threads > 1) { 
@@ -105,14 +102,14 @@ void mergeSort(int* __restrict list,int N, int threads) {
     #pragma omp section 
     {mergeSort(l1,n1,threads/2);}
     #pragma omp section
-    {mergeSort(l2,n2,threads/2);}
+    {mergeSort(&l1[n1],n2,threads/2);}
   }
  
     } else {
       mergeSort(l1,n1,1);
-      mergeSort(l2,n2,1);
+      mergeSort(&l1[n1],n2,1);
     }
-    merge(list,l1,l2,n1,n2);
+    merge(list,l1,&l1[n1],n1,n2);
     free(l1);
   }
 }
@@ -142,7 +139,7 @@ int correctness(int a, int b, int check) {
   }
 }
 
- void singleRun(int N, int max,int threads) {
+ void singleRun(const int N, const int max, const int threads) {
   int c1; int c2; int check = 32;
   double time;
   
@@ -191,13 +188,15 @@ int correctness(int a, int b, int check) {
 // ===== main ====== //
 int main(int argc, char* argv[] ) {
   const int N = atoi(argv[1]);
-  const int max = atoi(argv[2]);
+  flag = atoi(argv[2]);
   const int nThreads = atoi(argv[3]);
+
+  const int max = 200;
   omp_set_nested(1);
   omp_set_num_threads(nThreads);
   
   
   singleRun(N,max,nThreads);
-  //benchmark(N,max,10,nThreads);
+  //benchmark(N,max,1000,nThreads);
 
 }

@@ -10,7 +10,7 @@ def correctness():
     f = open(name,"w")
 
 
-    N =  [2**n for n in range(4,24)]
+    N =  [2**n for n in range(4,20)]
     max = 300
 
 
@@ -29,19 +29,19 @@ def correctness():
     print("done :)")
 
 
-def timing():
+def timing(threads,bubbleflag):
     name = "timings.txt"
     open(name, 'w').close()
     f = open(name,"w")
 
 
-    N =  [2**n for n in range(4,30)]
-    max = 300
+    N =  [2**n for n in range(4,27)]
+
 
 
     for i in range(len(N)):
         print(f"Starting N = {N[i]} simulation.")
-        string = "./merge " + str(N[i]) + " " +  str(max) + " >> out.txt"
+        string = "./merge " + str(N[i]) + " " +  str(bubbleflag) + " " +  str(threads) + " >> out.txt"
         print(string)
         call(string, shell = True)
         ff = open("out.txt","r")
@@ -53,7 +53,7 @@ def timing():
     f.close()
     print("done :)")
 
-timing()
+timing(4,8)
 #correctness()
 
     
