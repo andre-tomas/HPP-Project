@@ -102,7 +102,7 @@ void mergeSort(int* __restrict list, const int N,const  int threads) {
     #pragma omp section 
     {mergeSort(l1,n1,threads/2);}
     #pragma omp section
-    {mergeSort(&l1[n1],n2,threads/2);}
+    {mergeSort(&l1[n1],n2,threads - threads/2);} // Dont leave the odd threads behind! :(
   }
  
     } else {

@@ -1,0 +1,31 @@
+import os
+import sys
+import subprocess
+from subprocess import call
+
+
+
+name = "timings.txt"
+open(name, 'w').close()
+f = open(name,"w")
+
+
+bubbleflag = 0
+N = 2**24
+thread = [i for i in range(1,33)]
+print(thread)
+
+
+for i in range(len(thread)):
+    print("Starting thread = " + str(thread[i]) + " simulation.")
+    string = "./merge " + str(N) + " " +  str(bubbleflag) + " " +  str(thread[i]) + " >> out.txt"
+    print(string)
+    call(string, shell = True)
+    ff = open("out.txt","r")
+    res = ff.read()
+    f.write(res)
+    ff.close()
+    os.remove("out.txt")
+
+f.close()
+print("done :)")
